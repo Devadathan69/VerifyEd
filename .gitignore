@@ -1,0 +1,3 @@
+config.php
+storage/certificates/*
+!storage/certificates/.gitkeep
