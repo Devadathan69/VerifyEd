@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../app/bootstrap.php';
 $token = $_GET['t'] ?? '';
-$statement = $pdo->prepare("SELECT c.*, u.full_name, u.profile_headline, v.full_name AS verifier_name FROM certificates c JOIN users u ON c.user_id = u.id LEFT JOIN users v ON c.verifier_id = v.id WHERE c.share_token = ?");
+$statement = $pdo->prepare("SELECT c.*, u.full_name, u.profile_headline, v.full_name AS verifier_name FROM certificates c JOIN users u ON c.user_id = u.id LEFT JOIN users v ON c.verifier_id = v.id WHERE c.share_token = ? AND c.status = 'verified'");
 $statement->execute([$token]); $certificate = $statement->fetch();
 if (!$certificate) { http_response_code(404); exit('This verification link is invalid.'); }
 ?>
