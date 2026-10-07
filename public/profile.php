@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../app/bootstrap.php';
 
 $id = (int) ($_GET['id'] ?? 0);
-$statement = $pdo->prepare('SELECT id, full_name, profile_headline, biography, location FROM users WHERE id = ? AND role = "student" AND is_public = 1');
+$statement = $pdo->prepare("SELECT id, full_name, profile_headline, biography, location FROM users WHERE id = ? AND role = 'student' AND is_public = 1");
 $statement->execute([$id]);
 $profile = $statement->fetch();
 if (!$profile) {
@@ -10,7 +10,7 @@ if (!$profile) {
     exit('This public profile could not be found.');
 }
 
-$statement = $pdo->prepare('SELECT title, provider, completion_date, skills, share_token, reviewed_at, status FROM certificates WHERE user_id = ? ORDER BY (status = "verified") DESC, created_at DESC');
+$statement = $pdo->prepare("SELECT title, provider, completion_date, skills, share_token, reviewed_at, status FROM certificates WHERE user_id = ? AND status = 'verified' ORDER BY reviewed_at DESC, created_at DESC");
 $statement->execute([$id]);
 $certificates = $statement->fetchAll();
 $verifiedCount = count(array_filter($certificates, fn(array $certificate): bool => $certificate['status'] === 'verified'));
@@ -36,14 +36,14 @@ $verifiedCount = count(array_filter($certificates, fn(array $certificate): bool 
     <?php if ($profile['biography']): ?><section class="profile-about"><p class="eyebrow">About</p><p><?= nl2br(e($profile['biography'])) ?></p></section><?php endif; ?>
     <section class="verified-credentials"><p class="eyebrow">Credential record</p><h2>Skills &amp; credentials</h2><div class="verified-grid">
       <?php if (!$certificates): ?><div class="empty-directory">No credentials have been added to this profile yet.</div><?php endif; ?>
-      <?php foreach ($certificates as $certificate): $isVerified = $certificate['status'] === 'verified'; ?>
-        <article class="verified-card <?= $isVerified ? '' : 'unverified-card' ?>">
-          <span class="verified-medallion"><?= $isVerified ? '✓' : '…' ?></span>
-          <p class="tiny-label"><?= e(strtoupper(status_label($certificate['status']))) ?></p>
+      <?php foreach ($certificates as $certificate): ?>
+        <article class="verified-card">
+          <span class="verified-medallion">✓</span>
+          <p class="tiny-label">VERIFIED</p>
           <h3><?= e($certificate['title']) ?></h3>
           <p><?= e($certificate['provider']) ?> · <?= e(date('M Y', strtotime($certificate['completion_date']))) ?></p>
           <?php if ($certificate['skills']): ?><div class="skill-tags"><?php foreach (array_slice(array_filter(array_map('trim', explode(',', $certificate['skills']))), 0, 5) as $skill): ?><span><?= e($skill) ?></span><?php endforeach; ?></div><?php endif; ?>
-          <?php if ($isVerified): ?><a class="card-link" href="certificate.php?t=<?= e($certificate['share_token']) ?>">View verification <span>→</span></a><?php else: ?><p class="card-link pending-proof">This evidence is not verified yet.</p><?php endif; ?>
+          <a class="card-link" href="certificate.php?t=<?= e($certificate['share_token']) ?>">View verification <span>→</span></a>
         </article>
       <?php endforeach; ?>
     </div></section>

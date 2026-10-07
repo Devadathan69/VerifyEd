@@ -18,3 +18,10 @@ if (uploadInput) uploadInput.addEventListener('change', () => {
   const label = document.querySelector('#selectedFile');
   label.textContent = uploadInput.files[0] ? uploadInput.files[0].name : 'PDF, JPG, or PNG · maximum 5 MB';
 });
+
+document.querySelectorAll('[data-auth-switch]').forEach((link) => link.addEventListener('click', (event) => {
+  if (link.classList.contains('active') || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  event.preventDefault();
+  document.body.classList.add('auth-leaving');
+  window.setTimeout(() => { window.location.href = link.href; }, 170);
+}));
